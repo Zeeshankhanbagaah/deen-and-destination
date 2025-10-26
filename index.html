@@ -1,19 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
-
-  <head>
-    <meta charset="UTF-8">
-    <title>Untitled</title>
-    
-
-  </head>
-    
-  <body>
-  <!DOCTYPE html>
-<html lang="en">
-
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Deen & Destination - Travel with Purpose</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
@@ -740,6 +729,27 @@
             background-color: #27ae60;
             transform: translateY(-2px);
             box-shadow: 0 5px 12px rgba(46, 204, 113, 0.4);
+        }
+
+        .full-gallery-btn {
+            background-color: var(--color-orange);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 600;
+            font-size: 1rem;
+            box-shadow: 0 3px 8px rgba(243, 156, 18, 0.3);
+            margin: 30px auto;
+            display: block;
+        }
+        
+        .full-gallery-btn:hover {
+            background-color: #e67e22;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 12px rgba(243, 156, 18, 0.4);
         }
         
         /* Reviews Section */
@@ -2303,6 +2313,9 @@
             <div class="load-more-container" id="galleryLoadMoreContainer" style="display: none;">
                 <button class="load-more-btn" id="galleryLoadMoreBtn">Load More Photos</button>
             </div>
+            <button class="full-gallery-btn" id="fullGalleryBtn">
+                <i class="fas fa-images"></i> View Full Gallery
+            </button>
         </div>
     </section>
 
@@ -2348,7 +2361,7 @@
                 <!-- Reviews will be loaded here by JavaScript -->
             </div>
             <div class="load-more-container" id="reviewsLoadMoreContainer" style="display: none;">
-                <button class="load-more-btn" id="reviewsLoadMoreBtn">Load More Reviews</button>
+                <button class="load-more-btn" id="reviewsLoadMoreBtn">See More Reviews</button>
             </div>
         </div>
     </section>
@@ -2484,6 +2497,9 @@
                     <input type="password" id="adminPassword" class="form-control" placeholder="Enter admin password">
                 </div>
                 <button id="submitPassword" class="submit-btn">Access Admin Portal</button>
+                <div id="passwordAttempts" style="margin-top: 15px; font-size: 0.85rem; color: #666;">
+                    Attempts remaining: <span id="attemptsCount">10</span>
+                </div>
             </div>
         </div>
     </div>
@@ -2766,6 +2782,21 @@
         </div>
     </div>
 
+    <!-- Full Gallery Modal -->
+    <div class="gallery-modal" id="fullGalleryModal">
+        <div class="gallery-modal-content" style="max-width: 95%;">
+            <div class="gallery-modal-header">
+                <h3>Full Trip Gallery</h3>
+                <button class="gallery-close">&times;</button>
+            </div>
+            <div class="gallery-modal-body" style="max-height: 70vh; overflow-y: auto; padding: 20px;">
+                <div class="gallery-grid" id="fullGalleryContainer" style="grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));">
+                    <!-- Full gallery items will be loaded here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Gallery Modal -->
     <div class="gallery-modal" id="galleryModal">
         <div class="gallery-modal-content">
@@ -2881,8 +2912,8 @@
         // =============================================
         
         let adminPassword = localStorage.getItem('adminPassword') || '11223344';
-        let adminSessionTimeout;
-        const SESSION_DURATION = 30 * 60 * 1000;
+        let adminAttempts = 0;
+        const MAX_ATTEMPTS = 10;
         
         let destinationsData = [];
         let tripsData = [];
@@ -3088,6 +3119,27 @@
                     title: "Skardu",
                     date: "January 2024 Trip",
                     category: "skardu"
+                },
+                {
+                    id: 4,
+                    image: "https://images.unsplash.com/photo-1582569637092-5c657658b5f7?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80",
+                    title: "Fairy Meadows",
+                    date: "December 2023 Trip",
+                    category: "fairy-meadows"
+                },
+                {
+                    id: 5,
+                    image: "https://images.unsplash.com/photo-1591332784197-8c0d2a71f48e?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80",
+                    title: "Murree",
+                    date: "November 2023 Trip",
+                    category: "murree"
+                },
+                {
+                    id: 6,
+                    image: "https://images.unsplash.com/photo-1586435237137-42bc2f50ed0a?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80",
+                    title: "Abbottabad",
+                    date: "October 2023 Trip",
+                    category: "abbottabad"
                 }
             ];
         }
@@ -3097,7 +3149,10 @@
                 { id: 1, name: "All Trips", value: "all" },
                 { id: 2, name: "Hunza Valley", value: "hunza" },
                 { id: 3, name: "Neelum Valley", value: "neelum" },
-                { id: 4, name: "Skardu", value: "skardu" }
+                { id: 4, name: "Skardu", value: "skardu" },
+                { id: 5, name: "Fairy Meadows", value: "fairy-meadows" },
+                { id: 6, name: "Murree", value: "murree" },
+                { id: 7, name: "Abbottabad", value: "abbottabad" }
             ];
         }
 
@@ -3116,6 +3171,34 @@
                     rating: 5,
                     text: "My first trip with Deen & Destination and it won't be my last! The team takes care of everything so you can just enjoy the journey. Halal, safe, and so much fun!",
                     date: "2024-02-28"
+                },
+                {
+                    id: 3,
+                    name: "Bilal K.",
+                    rating: 5,
+                    text: "The Neelum Valley trip exceeded all my expectations. Beautiful scenery, great company, and well-planned itinerary. Can't wait for the next adventure!",
+                    date: "2024-02-15"
+                },
+                {
+                    id: 4,
+                    name: "Sara T.",
+                    rating: 4,
+                    text: "Had a wonderful time on the Murree trip. The accommodation was comfortable and the activities were well-organized. Looking forward to more trips!",
+                    date: "2024-01-20"
+                },
+                {
+                    id: 5,
+                    name: "Omar H.",
+                    rating: 5,
+                    text: "The Skardu trip was absolutely breathtaking. From the landscapes to the cultural experiences, everything was perfect. Definitely recommending to all my friends!",
+                    date: "2023-12-10"
+                },
+                {
+                    id: 6,
+                    name: "Zainab A.",
+                    rating: 5,
+                    text: "What an amazing community! Traveling with like-minded people made the experience so much better. The organizers were professional and caring throughout.",
+                    date: "2023-11-25"
                 }
             ];
         }
@@ -3228,6 +3311,43 @@
             
             container.innerHTML = '';
             
+            // Show only 6 items initially
+            const galleryItemsToShow = galleryData.slice(0, 6);
+            
+            galleryItemsToShow.forEach((item, index) => {
+                const galleryItem = document.createElement('div');
+                galleryItem.className = 'gallery-item';
+                galleryItem.setAttribute('data-category', item.category);
+                galleryItem.innerHTML = `
+                    <img src="${item.image}" alt="${item.title}">
+                    <div class="gallery-overlay">
+                        <h4>${item.title}</h4>
+                        <p>${item.date}</p>
+                    </div>
+                `;
+                container.appendChild(galleryItem);
+                
+                // Add click event for each gallery item
+                galleryItem.addEventListener('click', function() {
+                    currentImageIndex = index;
+                    updateModal();
+                    document.getElementById('galleryModal').style.display = 'block';
+                    document.body.style.overflow = 'hidden';
+                });
+            });
+            
+            // Show "Load More" button if there are more than 6 items
+            if (galleryData.length > 6) {
+                document.getElementById('galleryLoadMoreContainer').style.display = 'block';
+            }
+        }
+
+        function renderFullGallery() {
+            const container = document.getElementById('fullGalleryContainer');
+            if (!container) return;
+            
+            container.innerHTML = '';
+            
             galleryData.forEach((item, index) => {
                 const galleryItem = document.createElement('div');
                 galleryItem.className = 'gallery-item';
@@ -3255,6 +3375,64 @@
             const container = document.getElementById('reviewsContainer');
             if (!container) return;
             
+            container.innerHTML = '';
+            
+            // Show only 3 reviews initially
+            const reviewsToShow = reviewsData.slice(0, 3);
+            
+            reviewsToShow.forEach(review => {
+                const reviewCard = document.createElement('div');
+                reviewCard.className = 'review-card';
+                
+                // Generate star rating
+                let stars = '';
+                for (let i = 1; i <= 5; i++) {
+                    if (i <= review.rating) {
+                        stars += '<i class="fas fa-star"></i>';
+                    } else {
+                        stars += '<i class="far fa-star"></i>';
+                    }
+                }
+                
+                // Format date
+                const reviewDate = new Date(review.date).toLocaleDateString('en-US', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'
+                });
+                
+                // Get initials for avatar
+                const initials = review.name.split(' ').map(n => n[0]).join('').toUpperCase();
+                
+                reviewCard.innerHTML = `
+                    <div class="review-header">
+                        <div class="review-avatar">${initials}</div>
+                        <div class="review-info">
+                            <h4>${review.name}</h4>
+                            <div class="review-date">${reviewDate}</div>
+                        </div>
+                    </div>
+                    <div class="review-rating">
+                        ${stars}
+                    </div>
+                    <div class="review-text">
+                        "${review.text}"
+                    </div>
+                `;
+                container.appendChild(reviewCard);
+            });
+            
+            // Show "See More" button if there are more than 3 reviews
+            if (reviewsData.length > 3) {
+                document.getElementById('reviewsLoadMoreContainer').style.display = 'block';
+            }
+        }
+
+        function loadMoreReviews() {
+            const container = document.getElementById('reviewsContainer');
+            if (!container) return;
+            
+            // Show all reviews
             container.innerHTML = '';
             
             reviewsData.forEach(review => {
@@ -3298,6 +3476,9 @@
                 `;
                 container.appendChild(reviewCard);
             });
+            
+            // Hide the "See More" button
+            document.getElementById('reviewsLoadMoreContainer').style.display = 'none';
         }
 
         // =============================================
@@ -4001,17 +4182,6 @@
         // UTILITY FUNCTIONS
         // =============================================
 
-        function resetAdminSession() {
-            if (adminSessionTimeout) {
-                clearTimeout(adminSessionTimeout);
-            }
-            adminSessionTimeout = setTimeout(() => {
-                alert('Session expired due to inactivity. Please login again.');
-                document.getElementById('adminModal').style.display = 'none';
-                document.body.style.overflow = 'auto';
-            }, SESSION_DURATION);
-        }
-
         function fileToBase64(file) {
             return new Promise((resolve, reject) => {
                 const reader = new FileReader();
@@ -4174,7 +4344,8 @@
         // =============================================
 
         const galleryModal = document.getElementById('galleryModal');
-        const galleryClose = document.querySelector('.gallery-close');
+        const fullGalleryModal = document.getElementById('fullGalleryModal');
+        const galleryClose = document.querySelectorAll('.gallery-close');
         const modalImage = document.getElementById('modalImage');
         const modalTitle = document.getElementById('modalTitle');
         const modalLocation = document.getElementById('modalLocation');
@@ -4184,14 +4355,21 @@
         
         let currentImageIndex = 0;
         
-        galleryClose.addEventListener('click', function() {
-            galleryModal.style.display = 'none';
-            document.body.style.overflow = 'auto';
+        galleryClose.forEach(closeBtn => {
+            closeBtn.addEventListener('click', function() {
+                galleryModal.style.display = 'none';
+                fullGalleryModal.style.display = 'none';
+                document.body.style.overflow = 'auto';
+            });
         });
         
         window.addEventListener('click', function(e) {
             if (e.target === galleryModal) {
                 galleryModal.style.display = 'none';
+                document.body.style.overflow = 'auto';
+            }
+            if (e.target === fullGalleryModal) {
+                fullGalleryModal.style.display = 'none';
                 document.body.style.overflow = 'auto';
             }
         });
@@ -4225,6 +4403,8 @@
             
             // Admin button
             document.querySelector('.admin-btn').addEventListener('click', function() {
+                adminAttempts = 0;
+                document.getElementById('attemptsCount').textContent = MAX_ATTEMPTS - adminAttempts;
                 document.getElementById('passwordModal').style.display = 'block';
                 document.body.style.overflow = 'hidden';
             });
@@ -4265,6 +4445,14 @@
             // Admin password submission
             document.getElementById('submitPassword').addEventListener('click', function() {
                 const password = document.getElementById('adminPassword').value;
+                
+                if (adminAttempts >= MAX_ATTEMPTS) {
+                    alert('Too many failed attempts. Please refresh the page and try again.');
+                    document.getElementById('passwordModal').style.display = 'none';
+                    document.body.style.overflow = 'auto';
+                    return;
+                }
+                
                 if (password === adminPassword) {
                     document.getElementById('passwordModal').style.display = 'none';
                     document.getElementById('adminModal').style.display = 'block';
@@ -4283,9 +4471,18 @@
                     setupFileInput('tripImage', 'tripImageName', 'tripImagePreview');
                     setupFileInput('galleryImage', 'galleryImageName', 'galleryImagePreview');
                     
-                    resetAdminSession();
+                    // Reset attempts on successful login
+                    adminAttempts = 0;
                 } else {
-                    alert('Incorrect password. Please try again.');
+                    adminAttempts++;
+                    document.getElementById('attemptsCount').textContent = MAX_ATTEMPTS - adminAttempts;
+                    alert('Incorrect password. You have ' + (MAX_ATTEMPTS - adminAttempts) + ' attempts remaining.');
+                    
+                    if (adminAttempts >= MAX_ATTEMPTS) {
+                        alert('Maximum login attempts reached. Please refresh the page and try again.');
+                        document.getElementById('passwordModal').style.display = 'none';
+                        document.body.style.overflow = 'auto';
+                    }
                 }
             });
 
@@ -4305,8 +4502,6 @@
                     
                     this.classList.add('active');
                     document.getElementById(`${tabId}Tab`).classList.add('active');
-                    
-                    resetAdminSession();
                 });
             });
 
@@ -4372,7 +4567,7 @@
                 
                 adminPassword = newPassword;
                 localStorage.setItem('adminPassword', newPassword);
-                alert('Password changed successfully!');
+                showSuccessMessage('Password changed successfully!');
                 this.reset();
             });
 
@@ -4380,9 +4575,6 @@
             document.getElementById('logoutAdmin').addEventListener('click', function() {
                 document.getElementById('adminModal').style.display = 'none';
                 document.body.style.overflow = 'auto';
-                if (adminSessionTimeout) {
-                    clearTimeout(adminSessionTimeout);
-                }
             });
 
             // Export data
@@ -4424,6 +4616,49 @@
                         });
                 }
             });
+
+            // Full gallery button
+            document.getElementById('fullGalleryBtn').addEventListener('click', function() {
+                renderFullGallery();
+                document.getElementById('fullGalleryModal').style.display = 'block';
+                document.body.style.overflow = 'hidden';
+            });
+
+            // Load more reviews button
+            document.getElementById('reviewsLoadMoreBtn').addEventListener('click', loadMoreReviews);
+
+            // Load more gallery button
+            document.getElementById('galleryLoadMoreBtn').addEventListener('click', function() {
+                const container = document.getElementById('galleryContainer');
+                
+                // Show all gallery items
+                container.innerHTML = '';
+                
+                galleryData.forEach((item, index) => {
+                    const galleryItem = document.createElement('div');
+                    galleryItem.className = 'gallery-item';
+                    galleryItem.setAttribute('data-category', item.category);
+                    galleryItem.innerHTML = `
+                        <img src="${item.image}" alt="${item.title}">
+                        <div class="gallery-overlay">
+                            <h4>${item.title}</h4>
+                            <p>${item.date}</p>
+                        </div>
+                    `;
+                    container.appendChild(galleryItem);
+                    
+                    // Add click event for each gallery item
+                    galleryItem.addEventListener('click', function() {
+                        currentImageIndex = index;
+                        updateModal();
+                        document.getElementById('galleryModal').style.display = 'block';
+                        document.body.style.overflow = 'hidden';
+                    });
+                });
+                
+                // Hide the "Load More" button
+                document.getElementById('galleryLoadMoreContainer').style.display = 'none';
+            });
         });
 
         // Header scroll effect
@@ -4455,8 +4690,4 @@
         });
     </script>
 </body>
-</html>
-    
-  </body>
-  
 </html>
